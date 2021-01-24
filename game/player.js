@@ -44,17 +44,14 @@ class Player {
         }
         this.pipe1.update(this.scrollVelocity);
         this.pipe2.update(this.scrollVelocity);
-<<<<<<< HEAD
 
         console.log(this.deadPipe);
-=======
         this.ground.update();
 
 
         //check if score
         this.pipe1.checkIfScored(this);
         this.pipe2.checkIfScored(this);
->>>>>>> 583e65f7c85d3c2a5e91b62009028a8dbb8d1991
     }
 
     show(){

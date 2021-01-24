@@ -1,11 +1,11 @@
 class Node {
   constructor(num) {
-    this.number = no;
-    this.inputSum = 0;
-    this.outputValue = 0;
-    this.outputConnections = [];
-    this.layer = 0;
-    this.drawPos = createVector();
+    this.number = num; /* :number */
+    this.inputSum = 0; /* :number */
+    this.outputValue = 0; /* :number */
+    this.outputConnections = []; /* :ConnectionGene[] */
+    this.layer = 0; /* :number */
+    this.drawPos = createVector(); /* :p5.Vector */
   }
 
   engage() {
@@ -18,10 +18,10 @@ class Node {
       }
     });
   }
-  sigmoid(x) {
+  sigmoid(x /* :number */) {
     return 1.0 / (1.0 + pow(Math.E, -4.9 * x));
   }
-  isCOnnected(node) {
+  isCOnnected(node /* :Node */) {
     if (node.layer == this.layer) return false;
 
     if (node.layer < this.layer) {

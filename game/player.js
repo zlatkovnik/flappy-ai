@@ -58,7 +58,7 @@ class Player {
         textSize(50);
         textAlign(CENTER, CENTER);
         fill(50);
-        text(this.score, width / 2, height / 3);
+        text(this.score, width / 2, height / 5);
 
         this.pipe1.show();
         this.pipe2.show();

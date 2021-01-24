@@ -1,10 +1,10 @@
 class connectionGene {
   constructor(from, to, weight, innovationN) {
-    this.fromNode = from;
-    this.toNode = to;
-    this.weight = weight;
-    this.enabled = false;
-    this.innovationNo = innovationN;
+    this.fromNode = from; /* :Node */
+    this.toNode = to; /* :Node */
+    this.weight = weight; /* :number */
+    this.enabled = false; /* :boolean */
+    this.innovationNo = innovationN; /* :number */
   }
 
   mutateWeight() {

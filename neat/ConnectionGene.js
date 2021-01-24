@@ -17,7 +17,7 @@ class connectionGene {
     if (this.weight < -1) this.weight = -1;
   }
 
-  clone() {
+  clone(from, to) {
     let clone = new connectionGene(from, to, this.weight, this.innovationNo);
     clone.enabled = this.enabled;
 

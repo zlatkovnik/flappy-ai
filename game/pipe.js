@@ -32,7 +32,7 @@ class Pipe {
 
     checkIfScored(player){
         if(!player.dead && !this.scored){
-            if(player.x > this.x + this.w / 2){
+            if(player.x - player.r > this.x + this.w){
                 player.score++;
                 this.scored = true;
 
@@ -45,8 +45,7 @@ class Pipe {
 
     generateRandomPosition(){
         this.y = Math.random() * height;
-        if(this.y < this.gap / 2) this.y = this.gap / 2 + 20;
-        else if (this.y > height - this.gap / 2 - height / 10) this.y = height - this.gap / 2 - height / 10 - 20;
+        this.y = map(Math.random(), 0, 1, this.gap / 2 + 20, height - this.gap / 2 - height / 10 - 20);
         this.scored = false;
     }
 

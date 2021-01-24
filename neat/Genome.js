@@ -33,9 +33,11 @@ class Genome {
     //toDo
   }
   getNode(nodeNumber /* :number */) {
-    this.nodes.forEach((node) => {
-      if (node.number == nodeNumber) return node;
-    });
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i].number == nodeNumber) {
+        return this.nodes[i];
+      }
+    }
     return null;
   }
 
@@ -43,7 +45,6 @@ class Genome {
     this.nodes.forEach((node) => {
       node.outputConnections = [];
     });
-
     this.genes.forEach((gene) => {
       gene.fromNode.outputConnections.push(gene);
     });
@@ -282,6 +283,30 @@ class Genome {
     return false;
   }
 
+  mutate(innovationHistory) {
+    if (this.genes.length == 0) {
+      this.addConnection(innovationHistory);
+    }
+    var rand1 = random(1);
+    if (rand1 < 0.8) { // 80% of the time mutate weights
+      for (var i = 0; i < this.genes.length; i++) {
+        this.genes[i].mutateWeight();
+      }
+    }
+    //5% of the time add a new connection
+    var rand2 = random(1);
+    if (rand2 < 0.05) {
+
+      this.addConnection(innovationHistory);
+    }
+    //1% of the time add a node
+    var rand3 = random(1);
+    if (rand3 < 0.01) {
+
+      this.addNode(innovationHistory);
+    }
+  }
+
   crossover(parent2) {
     var child = new Genome(this.inputs, this.outputs, true);
     child.genes = [];
@@ -391,8 +416,8 @@ class Genome {
   //----------------------------------------------------------------------------------------------------------------------------------------
   //returns a copy of this genome
   clone() {
-    var clone = new Genome(this.inputs, this.outputs, true);
 
+    var clone = new Genome(this.inputs, this.outputs, true);
     for (var i = 0; i < this.nodes.length; i++) {
       //copy this.nodes
       clone.nodes.push(this.nodes[i].clone());
@@ -402,6 +427,8 @@ class Genome {
 
     for (var i = 0; i < this.genes.length; i++) {
       //copy genes
+      const gen = this.genes[i].clone(clone.getNode(this.genes[i].fromNode.number),
+      clone.getNode(this.genes[i].toNode.number));
       clone.genes.push(
         this.genes[i].clone(
           clone.getNode(this.genes[i].fromNode.number),
@@ -414,6 +441,8 @@ class Genome {
     clone.nextNode = this.nextNode;
     clone.biasNode = this.biasNode;
     clone.connectNodes();
+
+    
 
     return clone;
   }

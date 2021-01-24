@@ -21,7 +21,7 @@ class Node {
   sigmoid(x /* :number */) {
     return 1.0 / (1.0 + pow(Math.E, -4.9 * x));
   }
-  isCOnnected(node /* :Node */) {
+  isConnectedTo(node /* :Node */) {
     if (node.layer == this.layer) return false;
 
     if (node.layer < this.layer) {

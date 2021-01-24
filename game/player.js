@@ -8,13 +8,14 @@ class Player {
         this.gravity = g;
         this.flapStrength = fs;
         this.dead = false;
-        this.ground = new Ground(height - height / 10);
-        this.pipe1 = new Pipe(width);
-        this.pipe2 = new Pipe(width + width / 2 + width / 8);
 
         this.score = 0;
 
         this.animationFrame = 0;
+
+        this.pipe1 = new Pipe(width);
+        this.pipe2 = new Pipe(width + width / 2 + width / 8);
+        this.ground = new Ground(height - height / 10);
     }
 
     update(){
@@ -24,6 +25,7 @@ class Player {
         }
         //physics
         this.yVel += this.gravity;
+        if(this.yVel > 10) this.yVel = 10;
         this.y += this.yVel;
 
         //if touching celling
@@ -35,12 +37,12 @@ class Player {
         if(!this.dead)
             this.dead = this.ground.checkCollision(this);
         if(!this.dead)
-            this.dead=this.pipe1.checkCollision(this);
+            this.dead= this.pipe1.checkCollision(this);
         if(!this.dead)
-            this.dead=this.pipe2.checkCollision(this);
-            
-        this.pipe1.update(this.scrollVelocity);
-        this.pipe2.update(this.scrollVelocity);
+            this.dead= this.pipe2.checkCollision(this);
+
+        this.pipe1.update(player.scrollVelocity);
+        this.pipe2.update(player.scrollVelocity);
         this.ground.update();
 
         //check if score
@@ -49,6 +51,7 @@ class Player {
     }
 
     show(){
+    //bg
         const wrap = Math.floor(width / backgroundTexCoord.w * 3);
         for(let i = 0; i < wrap; i++){
             const bg = spriteSheet.get(backgroundTexCoord.x, backgroundTexCoord.y, backgroundTexCoord.w, backgroundTexCoord.h);
@@ -59,14 +62,16 @@ class Player {
         const img = spriteSheet.get(texCoords.x, texCoords.y, texCoords.w, texCoords.h);
         image(img, this.x - this.r, this.y - this.r, 2 * this.r, 2 * this.r);
 
+        //score
         textFont(font);
         textSize(50);
         textAlign(CENTER, CENTER);
         fill(50);
         text(this.score, width / 2, height / 5);
-
+        //pipes
         this.pipe1.show();
         this.pipe2.show();
+        //ground
         this.ground.show();
 
         // fill(255, 0, 0);

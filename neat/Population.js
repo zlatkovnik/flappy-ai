@@ -15,11 +15,9 @@ class Population {
     this.gensSinceNewWorld = 0;
 
     for (var i = 0; i < size; i++) {
-      this.players.push(new Player());
+      this.players.push(new Brain(width / 3, height / 2, width / 200, 0.4, 7));
       // this.players[this.players.length - 1].brain.fullyConnect(this.innovationHistory);
-      this.players[this.players.length - 1].brain.mutate(
-        this.innovationHistory
-      ); //fullyConnect(this.innovationHistory);
+      this.players[this.players.length - 1].brain.mutate(this.innovationHistory);
       this.players[this.players.length - 1].brain.generateNetwork();
     }
   }
@@ -33,18 +31,21 @@ class Population {
     return this.players[0];
   }
   updateAlive() {
-    var firstShown = false;
+    
+    let bestPlayer;
+    for (let i = 0; i < this.players.length; i++){
+      bestPlayer = this.players[i];
+      if(!bestPlayer.dead) break;
+    }
+    textFont('arial');
+    bestPlayer.show();
+    bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2);
     for (var i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
-        for (var j = 0; j < superSpeed; j++) {
-          this.players[i].look(); //get inputs for brain
-          this.players[i].think(); //use outputs from neural network
-          this.players[i].update(); //move the player according to the outputs from the neural network
-        }
-        if (!showNothing && (!showBest || !firstShown)) {
-          this.players[i].show();
-          firstShown = true;
-        }
+        this.players[i].look(); //get inputs for brain
+        this.players[i].think(); //use outputs from neural network
+        this.players[i].update(); //move the player according to the outputs from the neural network
+
         if (this.players[i].score > this.globalBestScore) {
           this.globalBestScore = this.players[i].score;
         }

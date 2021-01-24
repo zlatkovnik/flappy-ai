@@ -12,7 +12,7 @@ class Pipe {
     update(velocity){
         this.x -= velocity;
         //console.log(this.x)
-        if(this.x + this.w / 2 < 0){
+        if(this.x + this.w < 0){
             this.generateRandomPosition();
             this.x = width + this.w / 2;
         }
@@ -35,6 +35,10 @@ class Pipe {
             if(player.x > this.x + this.w / 2){
                 player.score++;
                 this.scored = true;
+
+                //Speed up game
+                if(player.scrollVelocity < 10)
+                   player.scrollVelocity += 0.1;
             }
         }
     }
@@ -49,7 +53,7 @@ class Pipe {
     checkCollision(player){
         const x = player.x - player.r;
         const y = player.y - player.r;
-        const w = 2 * player.r;
+        const w = 2 * player.r - 10;
 
         //Bottom
         if (x + w > this.x && x < this.x + this.w && y + w > this.y + this.gap / 2 + 5)

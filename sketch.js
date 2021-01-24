@@ -21,11 +21,18 @@ function setup() {
 }
 
 function draw() {
-  background(220);
-  player.update();
-  player.show();
+  
+  if(!player.dead){
+    background(220);
+    player.update();
+    player.show();
+  }
 }
 
 function mousePressed(){
   player.flap();
+
+  if(player.dead){
+    player = new Player(width / 3, height / 2, width / 200, 0.3, 7);
+  }
 }

@@ -1,12 +1,12 @@
 class Genome {
-  constructor(inputs, outputs, crossover) {
-    this.genes = [];
-    this.nodes = [];
-    this.inputs = inputs;
-    this.outputs = outputs;
-    this.layers = 2;
-    this.nextNode = 0;
-    this.network = []; //this.Nodes[]
+  constructor(inputs /* :number */, outputs /* :number */, crossover /* :boolean */) {
+    this.genes = []; /* :Node[] */
+    this.nodes = []; /* :Node[] */
+    this.inputs = inputs; /* :number */
+    this.outputs = outputs; /* :number */
+    this.layers = 2; /* :number */
+    this.nextNode = 0; /* :number */
+    this.network = [];  /* :Node[] */
 
     if (crossover) return;
 
@@ -32,7 +32,7 @@ class Genome {
   fullyConnect(innovationHistory) {
     //toDo
   }
-  getNode(nodeNumber) {
+  getNode(nodeNumber /* :number */) {
     this.nodes.forEach((node) => {
       if (node.number == nodeNumber) return node;
     });
@@ -49,7 +49,7 @@ class Genome {
     });
   }
 
-  feedForward(inputValues) {
+  feedForward(inputValues /* :number[] */) {
     for (let i = 0; i < this.inputs; i++) {
       this.nodes[i].outputValue = inputValues[i];
     }

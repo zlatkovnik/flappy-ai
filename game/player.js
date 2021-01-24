@@ -32,11 +32,16 @@ class Player {
             this.yVel = 0;
         }
         //check if hitting ground
-        this.dead = this.ground.checkCollision(this);
+        if(!this.dead)
+            this.dead = this.ground.checkCollision(this);
+        if(!this.dead)
+            this.dead=this.pipe1.checkCollision(this);
+        if(!this.dead)
+            this.dead=this.pipe2.checkCollision(this);
+            
         this.pipe1.update(this.scrollVelocity);
         this.pipe2.update(this.scrollVelocity);
         this.ground.update();
-
 
         //check if score
         this.pipe1.checkIfScored(this);
@@ -58,7 +63,7 @@ class Player {
         textSize(50);
         textAlign(CENTER, CENTER);
         fill(50);
-        text(this.score, width / 2, height / 3);
+        text(this.score, width / 2, height / 5);
 
         this.pipe1.show();
         this.pipe2.show();

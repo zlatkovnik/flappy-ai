@@ -1,5 +1,6 @@
 let player;
 let spriteSheet;
+let font;
 
 const playerTexCoords = [
   {x: 3, y: 491, w: 18, h: 12},
@@ -15,7 +16,8 @@ function setup() {
   createCanvas(860, 640);
   noSmooth();
   spriteSheet = loadImage("./assets/sheet.png");
-  player = new Player(width / 3, height / 2, width / 300, 0.3, 7);
+  player = new Player(width / 3, height / 2, width / 200, 0.3, 7);
+  font = loadFont("./assets/font.otf");
 }
 
 function draw() {

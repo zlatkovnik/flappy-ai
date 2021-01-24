@@ -5,6 +5,8 @@ class Pipe {
         this.gap = height / 3;
         this.w = width / 8;
         this.generateRandomPosition();
+
+        this.scored = false;
     }
 
     update(velocity){
@@ -27,9 +29,19 @@ class Pipe {
         image(lower, this.x, this.y + this.gap / 2, this.w, height);
     }
 
+    checkIfScored(player){
+        if(!player.dead && !this.scored){
+            if(player.x > this.x){
+                player.score++;
+                this.scored = true;
+            }
+        }
+    }
+
     generateRandomPosition(){
         this.y = Math.random() * height;
         if(this.y < this.gap / 2) this.y = this.gap / 2 + 20;
         else if (this.y > height - this.gap / 2 - height / 10) this.y = height - this.gap / 2 - height / 10 - 20;
+        this.scored = false;
     }
 }

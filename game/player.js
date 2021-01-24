@@ -8,6 +8,7 @@ class Player {
         this.gravity = g;
         this.flapStrength = fs;
         this.dead = false;
+        this.deadPipe=false;
         this.ground = new Ground(height - height / 10);
         this.pipe1 = new Pipe(width);
         this.pipe2 = new Pipe(width + width / 2 + width / 8);
@@ -33,14 +34,27 @@ class Player {
         }
         //check if hitting ground
         this.dead = this.ground.checkCollision(this);
+        if(this.deadPipe==false)
+        {
+        this.deadPipe=this.pipe1.checkCollision(this);
+        }
+        else if(this.deadPipe==false)
+        {
+            this.deadPipe=this.pipe2.checkCollision(this);
+        }
         this.pipe1.update(this.scrollVelocity);
         this.pipe2.update(this.scrollVelocity);
+<<<<<<< HEAD
+
+        console.log(this.deadPipe);
+=======
         this.ground.update();
 
 
         //check if score
         this.pipe1.checkIfScored(this);
         this.pipe2.checkIfScored(this);
+>>>>>>> 583e65f7c85d3c2a5e91b62009028a8dbb8d1991
     }
 
     show(){

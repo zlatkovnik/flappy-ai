@@ -44,10 +44,12 @@ class Player {
     }
 
     show(){
-        
+        const wrap = Math.floor(width / backgroundTexCoord.w * 3);
+        for(let i = 0; i < wrap; i++){
+            const bg = spriteSheet.get(backgroundTexCoord.x, backgroundTexCoord.y, backgroundTexCoord.w, backgroundTexCoord.h);
+            image(bg, i * backgroundTexCoord.w * 3, 0, backgroundTexCoord.w * 3, height);
+        }
 
-        const bg = spriteSheet.get(backgroundTexCoord.x, backgroundTexCoord.y, backgroundTexCoord.w, backgroundTexCoord.h);
-        image(bg, 0, 0, width, height);
         const texCoords = playerTexCoords[this.animationFrame];
         const img = spriteSheet.get(texCoords.x, texCoords.y, texCoords.w, texCoords.h);
         image(img, this.x - this.r, this.y - this.r, 2 * this.r, 2 * this.r);
@@ -55,6 +57,7 @@ class Player {
         textFont(font);
         textSize(50);
         textAlign(CENTER, CENTER);
+        fill(50);
         text(this.score, width / 2, height / 3);
 
         this.pipe1.show();

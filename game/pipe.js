@@ -31,7 +31,7 @@ class Pipe {
 
     checkIfScored(player){
         if(!player.dead && !this.scored){
-            if(player.x > this.x){
+            if(player.x > this.x + this.w / 2){
                 player.score++;
                 this.scored = true;
             }

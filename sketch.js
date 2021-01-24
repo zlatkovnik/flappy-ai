@@ -1,9 +1,21 @@
 let player;
+let spriteSheet;
+
+const playerTexCoords = [
+  {x: 3, y: 491, w: 18, h: 12},
+  {x: 31, y: 491, w: 18, h: 12},
+  {x: 59, y: 491, w: 18, h: 12}
+];
+const backgroundTexCoord = {x: 0, y: 0, w: 143, h: 255};
+const groundTexCoord = {x: 292, y: 0, w: 167, h: 55};
+const upperPipeTexCoord = {x: 56, y: 323, w: 26, h: 161};
+const lowerPipeTexCoord = {x: 84, y: 323, w: 26, h: 161};
 
 function setup() {
   createCanvas(860, 640);
-
-  player = new Player(width / 3, height / 2, width / 500, 0.2, 5);
+  noSmooth();
+  spriteSheet = loadImage("./assets/sheet.png");
+  player = new Player(width / 3, height / 2, width / 300, 0.3, 7);
 }
 
 function draw() {

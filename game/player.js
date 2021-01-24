@@ -9,11 +9,18 @@ class Player {
         this.flapStrength = fs;
         this.dead = false;
         this.ground = new Ground(height - height / 10);
-        this.pipe1 = new Pipe(width, 20, 10);
-        this.pipe2 = new Pipe(width + width / 2, 20, 10);
+        this.pipe1 = new Pipe(width);
+        this.pipe2 = new Pipe(width + width / 2);
+
+        this.score = 0;
+
+        this.animationFrame = 0;
     }
 
     update(){
+        if(frameCount % 10 === 0){
+            this.animationFrame = (this.animationFrame + 1) % 3;
+        }
         this.yVel += this.gravity;
         this.y += this.yVel;
 
@@ -26,14 +33,23 @@ class Player {
         this.dead = this.ground.checkCollision(this);
         this.pipe1.update(this.scrollVelocity);
         this.pipe2.update(this.scrollVelocity);
+        this.ground.update();
     }
 
     show(){
-        fill(255, 0, 0);
-        ellipse(this.x, this.y, 2 * this.r);
-        this.ground.show();
+        
+
+        const bg = spriteSheet.get(backgroundTexCoord.x, backgroundTexCoord.y, backgroundTexCoord.w, backgroundTexCoord.h);
+        image(bg, 0, 0, width, height);
+        const texCoords = playerTexCoords[this.animationFrame];
+        const img = spriteSheet.get(texCoords.x, texCoords.y, texCoords.w, texCoords.h);
+        image(img, this.x - this.r, this.y - this.r, 2 * this.r, 2 * this.r);
         this.pipe1.show();
         this.pipe2.show();
+        this.ground.show();
+
+        // fill(255, 0, 0);
+        // ellipse(this.x, this.y, 2 * this.r);
     }
 
     flap(){

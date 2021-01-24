@@ -1,24 +1,30 @@
 class Pipe {
     constructor(x){
         this.x = x;
-        this.gap = height / 4;
-        this.w = width / 10;
+        this.y = 0;
+        this.gap = height / 3;
+        this.w = width / 8;
         this.generateRandomPosition();
     }
 
     update(velocity){
         this.x -= velocity;
-        console.log(this.x)
-        if(this.x + this.w / 2 < 0){
+        if(this.x + this.w < 0){
             this.generateRandomPosition();
             this.x = width + this.w / 2;
         }
     }
 
     show(){
-        fill(0, 255, 0);
-        rect(this.x - this.w / 2, this.y + this.gap / 2, this.w, 1000);
-        rect(this.x - this.w / 2, this.y - this.gap / 2 - 1000, this.w, 1000);
+        // fill(0, 255, 0);
+        // rect(this.x - this.w / 2, this.y + this.gap / 2, this.w, 1000);
+        // rect(this.x - this.w / 2, this.y - this.gap / 2 - 1000, this.w, 1000);
+
+        const upper = spriteSheet.get(upperPipeTexCoord.x, upperPipeTexCoord.y, upperPipeTexCoord.w, upperPipeTexCoord.h);
+        image(upper, this.x, this.y - height - this.gap / 2, this.w, height);
+
+        const lower = spriteSheet.get(lowerPipeTexCoord.x, lowerPipeTexCoord.y, lowerPipeTexCoord.w, lowerPipeTexCoord.h);
+        image(lower, this.x, this.y + this.gap / 2, this.w, height);
     }
 
     generateRandomPosition(){

@@ -281,4 +281,209 @@ class Genome {
 
     return false;
   }
+
+  crossover(parent2) {
+    var child = new Genome(this.inputs, this.outputs, true);
+    child.genes = [];
+    child.nodes = [];
+    child.layers = this.layers;
+    child.nextNode = this.nextNode;
+    child.biasNode = this.biasNode;
+    var childGenes = []; // new ArrayList<connectionGene>();//list of genes to be inherrited form the parents
+    var isEnabled = []; // new ArrayList<Boolean>();
+    //all inherited genes
+    for (var i = 0; i < this.genes.length; i++) {
+      var setEnabled = true; //is this node in the chlid going to be enabled
+
+      var parent2gene = this.matchingGene(parent2, this.genes[i].innovationNo);
+      if (parent2gene != -1) {
+        //if the genes match
+        if (!this.genes[i].enabled || !parent2.genes[parent2gene].enabled) {
+          //if either of the matching genes are disabled
+
+          if (random(1) < 0.75) {
+            //75% of the time disabel the childs gene
+            setEnabled = false;
+          }
+        }
+        var rand = random(1);
+        if (rand < 0.5) {
+          childGenes.push(this.genes[i]);
+
+          //get gene from this fucker
+        } else {
+          //get gene from parent2
+          childGenes.push(parent2.genes[parent2gene]);
+        }
+      } else {
+        //disjoint or excess gene
+        childGenes.push(this.genes[i]);
+        setEnabled = this.genes[i].enabled;
+      }
+      isEnabled.push(setEnabled);
+    }
+
+    //since all excess and disjovar genes are inherrited from the more fit parent (this Genome) the childs structure is no different from this parent | with exception of dormant connections being enabled but this wont effect this.nodes
+    //so all the this.nodes can be inherrited from this parent
+    for (var i = 0; i < this.nodes.length; i++) {
+      child.nodes.push(this.nodes[i].clone());
+    }
+
+    //clone all the connections so that they connect the childs new this.nodes
+
+    for (var i = 0; i < childGenes.length; i++) {
+      child.genes.push(
+        childGenes[i].clone(
+          child.getNode(childGenes[i].fromNode.number),
+          child.getNode(childGenes[i].toNode.number)
+        )
+      );
+      child.genes[i].enabled = isEnabled[i];
+    }
+
+    child.connectNodes();
+    return child;
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------------------------
+  //returns whether or not there is a gene matching the input innovation number  in the input genome
+  matchingGene(parent2, innovationNumber) {
+    for (var i = 0; i < parent2.genes.length; i++) {
+      if (parent2.genes[i].innovationNo == innovationNumber) {
+        return i;
+      }
+    }
+    return -1; //no matching gene found
+  }
+  //----------------------------------------------------------------------------------------------------------------------------------------
+  //prints out info about the genome to the console
+  printGenome() {
+    console.log("Prvar genome  layers:" + this.layers);
+    console.log("bias node: " + this.biasNode);
+    console.log("this.nodes");
+    for (var i = 0; i < this.nodes.length; i++) {
+      console.log(this.nodes[i].number + ",");
+    }
+    console.log("Genes");
+    for (var i = 0; i < this.genes.length; i++) {
+      //for each connectionGene
+      console.log(
+        "gene " +
+          this.genes[i].innovationNo +
+          "From node " +
+          this.genes[i].fromNode.number +
+          "To node " +
+          this.genes[i].toNode.number +
+          "is enabled " +
+          this.genes[i].enabled +
+          "from layer " +
+          this.genes[i].fromNode.layer +
+          "to layer " +
+          this.genes[i].toNode.layer +
+          "weight: " +
+          this.genes[i].weight
+      );
+    }
+
+    console.log();
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------------------------
+  //returns a copy of this genome
+  clone() {
+    var clone = new Genome(this.inputs, this.outputs, true);
+
+    for (var i = 0; i < this.nodes.length; i++) {
+      //copy this.nodes
+      clone.nodes.push(this.nodes[i].clone());
+    }
+
+    //copy all the connections so that they connect the clone new this.nodes
+
+    for (var i = 0; i < this.genes.length; i++) {
+      //copy genes
+      clone.genes.push(
+        this.genes[i].clone(
+          clone.getNode(this.genes[i].fromNode.number),
+          clone.getNode(this.genes[i].toNode.number)
+        )
+      );
+    }
+
+    clone.layers = this.layers;
+    clone.nextNode = this.nextNode;
+    clone.biasNode = this.biasNode;
+    clone.connectNodes();
+
+    return clone;
+  }
+  //----------------------------------------------------------------------------------------------------------------------------------------
+  //draw the genome on the screen
+  drawGenome(startX, startY, w, h) {
+    //i know its ugly but it works (and is not that important) so I'm not going to mess with it
+    var allNodes = []; //new ArrayList<ArrayList<Node>>();
+    var nodePoses = []; // new ArrayList<PVector>();
+    var nodeNumbers = []; // new ArrayList<Integer>();
+
+    //get the positions on the screen that each node is supposed to be in
+
+    //split the this.nodes varo layers
+    for (var i = 0; i < this.layers; i++) {
+      var temp = []; // new ArrayList<Node>();
+      for (var j = 0; j < this.nodes.length; j++) {
+        //for each node
+        if (this.nodes[j].layer == i) {
+          //check if it is in this layer
+          temp.push(this.nodes[j]); //add it to this layer
+        }
+      }
+      allNodes.push(temp); //add this layer to all this.nodes
+    }
+
+    //for each layer add the position of the node on the screen to the node posses arraylist
+    for (var i = 0; i < this.layers; i++) {
+      fill(255, 0, 0);
+      var x = startX + float((i + 1.0) * w) / float(this.layers + 1.0);
+      for (var j = 0; j < allNodes[i].length; j++) {
+        //for the position in the layer
+        var y = startY + float((j + 1.0) * h) / float(allNodes[i].length + 1.0);
+        nodePoses.push(createVector(x, y));
+        nodeNumbers.push(allNodes[i][j].number);
+      }
+    }
+
+    //draw connections
+    stroke(0);
+    strokeWeight(2);
+    for (var i = 0; i < this.genes.length; i++) {
+      if (this.genes[i].enabled) {
+        stroke(0);
+      } else {
+        stroke(100);
+      }
+      var from;
+      var to;
+      from = nodePoses[nodeNumbers.indexOf(this.genes[i].fromNode.number)];
+      to = nodePoses[nodeNumbers.indexOf(this.genes[i].toNode.number)];
+      if (this.genes[i].weight > 0) {
+        stroke(255, 0, 0);
+      } else {
+        stroke(0, 0, 255);
+      }
+      strokeWeight(map(abs(this.genes[i].weight), 0, 1, 0, 3));
+      line(from.x, from.y, to.x, to.y);
+    }
+
+    //draw this.nodes last so they appear ontop of the connection lines
+    for (var i = 0; i < nodePoses.length; i++) {
+      fill(255);
+      stroke(0);
+      strokeWeight(1);
+      ellipse(nodePoses[i].x, nodePoses[i].y, 20, 20);
+      textSize(10);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      text(nodeNumbers[i], nodePoses[i].x, nodePoses[i].y);
+    }
+  }
 }

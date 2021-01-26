@@ -3,12 +3,8 @@ let population;
 let spriteSheet;
 let font;
 
-<<<<<<< HEAD
-let nextConnectionNo = 1473;
-=======
 //Logika igrice se mnozi ovim brojem
 const superSpeed = 1;
->>>>>>> 7963c9eb405979c6cbe48f186e8b756a3f68c2f0
 
 const playerTexCoords = [
   { x: 3, y: 491, w: 18, h: 12 },
@@ -28,12 +24,7 @@ function preload(){
 function setup() {
   createCanvas(860, 640);
   noSmooth();
-<<<<<<< HEAD
-  player = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
-  population = new Population(1473);
-=======
   population = new Population(1000);
->>>>>>> 7963c9eb405979c6cbe48f186e8b756a3f68c2f0
 }
 
 function draw() {

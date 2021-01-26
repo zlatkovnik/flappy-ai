@@ -34,7 +34,6 @@ class Population {
       bestPlayer = this.players[i];
       if (!bestPlayer.dead) break;
     }
-    textFont("arial");
     bestPlayer.show();
     bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2);
     for (let i = 0; i < this.players.length; i++) {

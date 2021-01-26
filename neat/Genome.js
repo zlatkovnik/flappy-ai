@@ -460,7 +460,8 @@ class Genome {
       stroke(0);
       strokeWeight(1);
       ellipse(nodePoses[i].x, nodePoses[i].y, 20, 20);
-      textSize(10);
+      textSize(15);
+      textFont('Arial');
       fill(0);
       textAlign(CENTER, CENTER);
       text(nodeNumbers[i], nodePoses[i].x, nodePoses[i].y);

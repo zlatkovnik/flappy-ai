@@ -3,8 +3,6 @@ let population;
 
 let spriteSheet;
 let font;
-let flapSound;
-let pointSound;
 
 let nextConnectionNo = 1000;
 
@@ -18,17 +16,16 @@ const groundTexCoord = { x: 292, y: 0, w: 167, h: 55 };
 const upperPipeTexCoord = { x: 56, y: 323, w: 26, h: 161 };
 const lowerPipeTexCoord = { x: 84, y: 323, w: 26, h: 161 };
 
+function preload(){
+  spriteSheet = loadImage("./assets/sheet.png");
+  font = loadFont("./assets/font.otf");
+}
+
 function setup() {
   createCanvas(860, 640);
   noSmooth();
-  spriteSheet = loadImage("./assets/sheet.png");
-  font = loadFont("./assets/font.otf");
-
-  flapSound = loadSound("./assets/sfx_wing.wav");
-  pointSound = loadSound("./assets/sfx_point.wav");
-
+  flapSound.amp(0.3);
   player = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
-
   population = new Population(1000);
 }
 

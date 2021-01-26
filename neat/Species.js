@@ -136,7 +136,7 @@ class Species {
   //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //gets baby from the this.players in this species
-  giveMeBaby(innovationHistory) {
+  giveMeBaby() {
     var baby;
     if (random(1) < 0.25) {
       //25% of the time there is no crossover and the child is simply a clone of a random(ish) player
@@ -156,7 +156,7 @@ class Species {
         baby = parent1.crossover(parent2);
       }
     }
-    baby.brain.mutate(innovationHistory); //mutate that baby brain
+    baby.brain.mutate(); //mutate that baby brain
 
     return baby;
   }

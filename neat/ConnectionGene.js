@@ -23,14 +23,4 @@ class connectionGene {
 
     return clone;
   }
-  //todo
-  getInnovationNumber() {
-    //Using https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-    return (
-      (1 / 2) *
-        (this.fromNode.number + this.toNode.number) *
-        (this.fromNode.number + this.toNode.number + 1) +
-      this.toNode.number
-    );
-  }
 }

@@ -1,29 +1,27 @@
 class Population {
   constructor(size) {
-    this.players = []; //new ArrayList<Player>();
-    this.bestPlayer; //the best ever player
-    this.bestScore = 0; //the score of the best ever player
+    this.players = []; //:Player[]
+    this.bestPlayer;
+    this.bestScore = 0;
     this.globalBestScore = 0;
     this.gen = 1;
-    this.innovationHistory = []; // new ArrayList<connectionHistory>();
-    this.genPlayers = []; //new ArrayList<Player>();
-    this.species = []; //new ArrayList<Species>();
+    this.genPlayers = []; //:Player[]
+    this.species = []; //:Species[]
 
     this.massExtinctionEvent = false;
     this.newStage = false;
 
     this.gensSinceNewWorld = 0;
 
-    for (var i = 0; i < size; i++) {
+    for (let i = 0; i < size; i++) {
       this.players.push(new Brain(width / 3, height / 2, width / 200, 0.4, 7));
-      // this.players[this.players.length - 1].brain.fullyConnect(this.innovationHistory);
-      this.players[this.players.length - 1].brain.mutate(this.innovationHistory);
+      this.players[this.players.length - 1].brain.mutate();
       this.players[this.players.length - 1].brain.generateNetwork();
     }
   }
 
   getCurrentBest() {
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
         return this.players[i];
       }
@@ -31,20 +29,19 @@ class Population {
     return this.players[0];
   }
   updateAlive() {
-    
     let bestPlayer;
-    for (let i = 0; i < this.players.length; i++){
+    for (let i = 0; i < this.players.length; i++) {
       bestPlayer = this.players[i];
-      if(!bestPlayer.dead) break;
+      if (!bestPlayer.dead) break;
     }
-    textFont('arial');
+    textFont("arial");
     bestPlayer.show();
     bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2);
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
-        this.players[i].look(); //get inputs for brain
-        this.players[i].think(); //use outputs from neural network
-        this.players[i].update(); //move the player according to the outputs from the neural network
+        this.players[i].look(); //uzima inpute za mozak
+        this.players[i].think(); //koristi outpute za mrezu
+        this.players[i].update(); //pomera pticu u zavisnosti od outputa mreze
 
         if (this.players[i].score > this.globalBestScore) {
           this.globalBestScore = this.players[i].score;
@@ -53,9 +50,9 @@ class Population {
     }
   }
   //------------------------------------------------------------------------------------------------------------------------------------------
-  //returns true if all the players are dead      sad
+  //true ako su svi igraci mrtvi
   done() {
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
         return false;
       }
@@ -63,12 +60,10 @@ class Population {
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------------------
-  //sets the best player globally and for thisthis.gen
-  setBestPlayer() {
-    var tempBest = this.species[0].players[0];
-    tempBest.gen = this.gen;
 
-    //if best thisthis.gen is better than the global best score then set the global best as the best thisthis.gen
+  setBestPlayer() {
+    let tempBest = this.species[0].players[0];
+    tempBest.gen = this.gen;
 
     if (tempBest.score >= this.bestScore) {
       this.genPlayers.push(tempBest.cloneForReplay());
@@ -80,10 +75,9 @@ class Population {
   }
 
   //------------------------------------------------------------------------------------------------------------------------------------------------
-  //this function is called when all the players in the this.players are dead and a newthis.generation needs to be made
+  //zove se kada su svi igraci mrtvi (this.players) i nova generacija se pravi
   naturalSelection() {
-    // this.batchNo = 0;
-    var previousBest = this.players[0];
+    let previousBest = this.players[0];
     this.speciate(); //seperate the this.players varo this.species
     this.calculateFitness(); //calculate the fitness of each player
     this.sortSpecies(); //sort the this.species to be ranked in fitness order, best first
@@ -99,27 +93,25 @@ class Population {
     console.log(
       "generation  " +
         this.gen +
-        "  Number of mutations  " +
-        this.innovationHistory.length +
         "  species:   " +
         this.species.length +
         "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
     );
 
-    var averageSum = this.getAvgFitnessSum();
-    var children = [];
-    for (var j = 0; j < this.species.length; j++) {
+    let averageSum = this.getAvgFitnessSum();
+    let children = [];
+    for (let j = 0; j < this.species.length; j++) {
       //for each this.species
 
       children.push(this.species[j].champ.clone()); //add champion without any mutation
-      var NoOfChildren =
+      let NoOfChildren =
         floor(
           (this.species[j].averageFitness / averageSum) * this.players.length
         ) - 1; //the number of children this this.species is allowed, note -1 is because the champ is already added
 
-      for (var i = 0; i < NoOfChildren; i++) {
+      for (let i = 0; i < NoOfChildren; i++) {
         //get the calculated amount of children from this this.species
-        children.push(this.species[j].giveMeBaby(this.innovationHistory));
+        children.push(this.species[j].giveMeBaby());
       }
     }
     // setup();
@@ -129,13 +121,13 @@ class Population {
     }
     while (children.length < this.players.length) {
       //if not enough babies (due to flooring the number of children to get a whole var)
-      children.push(this.species[0].giveMeBaby(this.innovationHistory)); //get babies from the best this.species
+      children.push(this.species[0].giveMeBaby()); //get babies from the best this.species
     }
 
     this.players = [];
     arrayCopy(children, this.players); //set the children as the current this.playersulation
     this.gen += 1;
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       //generate networks for each of the children
       this.players[i].brain.generateNetwork();
     }
@@ -144,14 +136,14 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //seperate this.players into this.species based on how similar they are to the leaders of each this.species in the previousthis.gen
   speciate() {
-    for (var s of this.species) {
+    for (let s of this.species) {
       //empty this.species
       s.players = [];
     }
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       //for each player
-      var speciesFound = false;
-      for (var s of this.species) {
+      let speciesFound = false;
+      for (let s of this.species) {
         //for each this.species
         if (s.sameSpecies(this.players[i].brain)) {
           //if the player is similar enough to be considered in the same this.species
@@ -169,7 +161,7 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //calculates the fitness of all of the players
   calculateFitness() {
-    for (var i = 1; i < this.players.length; i++) {
+    for (let i = 1; i < this.players.length; i++) {
       this.players[i].calculateFitness();
     }
   }
@@ -177,17 +169,17 @@ class Population {
   //sorts the players within a this.species and the this.species by their fitnesses
   sortSpecies() {
     //sort the players within a this.species
-    for (var s of this.species) {
+    for (let s of this.species) {
       s.sortSpecies();
     }
 
     //sort the this.species by the fitness of its best player
     //using selection sort like a loser
-    var temp = []; //new ArrayList<Species>();
-    for (var i = 0; i < this.species.length; i++) {
-      var max = 0;
-      var maxIndex = 0;
-      for (var j = 0; j < this.species.length; j++) {
+    let temp = []; //new ArrayList<Species>();
+    for (let i = 0; i < this.species.length; i++) {
+      let max = 0;
+      let maxIndex = 0;
+      for (let j = 0; j < this.species.length; j++) {
         if (this.species[j].bestFitness > max) {
           max = this.species[j].bestFitness;
           maxIndex = j;
@@ -204,7 +196,7 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //kills all this.species which haven't improved in 15this.generations
   killStaleSpecies() {
-    for (var i = 2; i < this.species.length; i++) {
+    for (let i = 2; i < this.species.length; i++) {
       if (this.species[i].staleness >= 15) {
         // .remove(i);
         // splice(this.species, i)
@@ -216,9 +208,9 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //if a this.species sucks so much that it wont even be allocated 1 child for the nextthis.generation then kill it now
   killBadSpecies() {
-    var averageSum = this.getAvgFitnessSum();
+    let averageSum = this.getAvgFitnessSum();
 
-    for (var i = 1; i < this.species.length; i++) {
+    for (let i = 1; i < this.species.length; i++) {
       if (
         (this.species[i].averageFitness / averageSum) * this.players.length <
         1
@@ -234,8 +226,8 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //returns the sum of each this.species average fitness
   getAvgFitnessSum() {
-    var averageSum = 0;
-    for (var s of this.species) {
+    let averageSum = 0;
+    for (let s of this.species) {
       averageSum += s.averageFitness;
     }
     return averageSum;
@@ -244,7 +236,7 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------
   //kill the bottom half of each this.species
   cullSpecies() {
-    for (var s of this.species) {
+    for (let s of this.species) {
       s.cull(); //kill bottom half
       s.fitnessSharing(); //also while we're at it lets do fitness sharing
       s.setAverage(); //reset averages because they will have changed
@@ -252,7 +244,7 @@ class Population {
   }
 
   massExtinction() {
-    for (var i = 5; i < this.species.length; i++) {
+    for (let i = 5; i < this.species.length; i++) {
       // this.species.remove(i); //sad
       this.species.splice(i, 1);
 
@@ -265,7 +257,7 @@ class Population {
   //update all the players which are alive
   updateAliveInBatches() {
     let aliveCount = 0;
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       if (this.playerInBatch(this.players[i])) {
         if (!this.players[i].dead) {
           aliveCount++;
@@ -289,7 +281,7 @@ class Population {
 
   playerInBatch(player) {
     for (
-      var i = this.batchNo * this.worldsPerBatch;
+      let i = this.batchNo * this.worldsPerBatch;
       i < min((this.batchNo + 1) * this.worldsPerBatch, worlds.length);
       i++
     ) {
@@ -303,7 +295,7 @@ class Population {
 
   stepWorldsInBatch() {
     for (
-      var i = this.batchNo * this.worldsPerBatch;
+      let i = this.batchNo * this.worldsPerBatch;
       i < min((this.batchNo + 1) * this.worldsPerBatch, worlds.length);
       i++
     ) {
@@ -314,7 +306,7 @@ class Population {
   //returns true if all the players in a batch are dead      sad
   batchDead() {
     for (
-      var i = this.batchNo * this.playersPerBatch;
+      let i = this.batchNo * this.playersPerBatch;
       i < min((this.batchNo + 1) * this.playersPerBatch, this.players.length);
       i++
     ) {

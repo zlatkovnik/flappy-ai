@@ -332,7 +332,6 @@ class Genome {
     return child;
   }
 
-  //----------------------------------------------------------------------------------------------------------------------------------------
 
   //da li postoji gen koji je isti input inovation number-u u input genu
   matchingGene(parent2, innovationNumber) {
@@ -343,39 +342,6 @@ class Genome {
     }
     return -1; //nije nadjen
   }
-  //----------------------------------------------------------------------------------------------------------------------------------------
-  // printGenome() {
-  //   console.log("Prvar genome  layers:" + this.layers);
-  //   console.log("bias node: " + this.biasNode);
-  //   console.log("this.nodes");
-  //   for (let i = 0; i < this.nodes.length; i++) {
-  //     console.log(this.nodes[i].number + ",");
-  //   }
-  //   console.log("Genes");
-  //   for (let i = 0; i < this.genes.length; i++) {
-  //     //for each connectionGene
-  //     console.log(
-  //       "gene " +
-  //         this.genes[i].innovationNo +
-  //         "From node " +
-  //         this.genes[i].fromNode.number +
-  //         "To node " +
-  //         this.genes[i].toNode.number +
-  //         "is enabled " +
-  //         this.genes[i].enabled +
-  //         "from layer " +
-  //         this.genes[i].fromNode.layer +
-  //         "to layer " +
-  //         this.genes[i].toNode.layer +
-  //         "weight: " +
-  //         this.genes[i].weight
-  //     );
-  //   }
-
-  //   console.log();
-  // }
-
-  //----------------------------------------------------------------------------------------------------------------------------------------
 
   clone() {
     let clone = new Genome(this.inputs, this.outputs, true);
@@ -403,11 +369,10 @@ class Genome {
 
     return clone;
   }
-  //----------------------------------------------------------------------------------------------------------------------------------------
 
   drawGenome(startX, startY, w, h) {
     let allNodes = []; // :Node[]
-    let nodePoses = []; // :PVector[]
+    let nodePoses = []; // :p5.Vector[]
     let nodeNumbers = []; // :Number[]
 
     //pozicija svakog node-a

@@ -32,14 +32,14 @@ class Brain extends Player {
       this.ground.y - closestPipe.gap / 2,
       0,
       1
-    ); //height above bottomY
+    ); 
     this.vision[3] = map(
       max(0, this.y - closestPipe.y - closestPipe.gap / 2),
       0,
       this.ground.y - closestPipe.gap / 2,
       0,
       1
-    ); //distance below topThing
+    );
   }
 
   think() {
@@ -69,16 +69,6 @@ class Brain extends Player {
     child.brain = this.brain.crossover(parent2.brain);
     child.brain.generateNetwork();
     return child;
-  }
-
-  cloneForReplay() {
-    var clone = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
-    clone.brain = this.brain.clone();
-    clone.fitness = this.fitness;
-    clone.brain.generateNetwork();
-    clone.gen = this.gen;
-    clone.bestScore = this.score;
-    return clone;
   }
 
   getClosestPipe() {

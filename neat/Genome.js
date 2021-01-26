@@ -1,12 +1,16 @@
 class Genome {
-  constructor(inputs /* :number */, outputs /* :number */, crossover /* :boolean */) {
+  constructor(
+    inputs /* :number */,
+    outputs /* :number */,
+    crossover /* :boolean */
+  ) {
     this.genes = []; /* :Node[] */
     this.nodes = []; /* :Node[] */
     this.inputs = inputs; /* :number */
     this.outputs = outputs; /* :number */
     this.layers = 2; /* :number */
     this.nextNode = 0; /* :number */
-    this.network = [];  /* :Node[] */
+    this.network = []; /* :Node[] */
 
     if (crossover) return;
 
@@ -29,9 +33,6 @@ class Genome {
     this.nodes[this.biasNode].layer = 0;
   }
 
-  fullyConnect(innovationHistory) {
-    //toDo
-  }
   getNode(nodeNumber /* :number */) {
     for (let i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].number == nodeNumber) {
@@ -60,7 +61,8 @@ class Genome {
       nodes.engage();
     });
 
-    //this.nodes[inputs] to this.nodes [inputs+outputs-1]
+    //index prvog outputa je this.nodes[this.inputs]
+    //index zadnjeg outputa je this.nodes[this.inputs + this.outputs - 1]
     let outs = [];
     for (let i = 0; i < this.outputs; i++) {
       outs[i] = this.nodes[this.inputs + i].outputValue;
@@ -78,21 +80,20 @@ class Genome {
     this.network = [];
 
     for (let l = 0; l < this.layers; l++) {
-      //for each layer
-      for (var i = 0; i < this.nodes.length; i++) {
-        //for each node
+      //za svaki sloj
+      for (let i = 0; i < this.nodes.length; i++) {
+        //za svaki node
         if (this.nodes[i].layer == l) {
-          //if that node is in that layer
           this.network.push(this.nodes[i]);
         }
       }
     }
   }
 
-  addNode(innovationHistory) {
-    //pick a random connection to create a node between
+  addNode() {
+    //bira se random konekcija
     if (this.genes.length == 0) {
-      this.addConnection(innovationHistory);
+      this.addConnection();
       return;
     }
     let randomConnection = floor(random(this.genes.length));
@@ -101,18 +102,16 @@ class Genome {
       this.genes[randomConnection].fromNode == this.nodes[this.biasNode] &&
       this.genes.length != 1
     ) {
-      //dont disconnect bias
       randomConnection = floor(random(this.genes.length));
     }
 
-    this.genes[randomConnection].enabled = false; //disable it
+    this.genes[randomConnection].enabled = false;
 
     let newNodeNo = this.nextNode;
     this.nodes.push(new Node(newNodeNo));
     this.nextNode++;
-    //add a new connection to the new node with a weight of 1
+    //dodaje se nova konekcija sa tezinom 1
     let connectionInnovationNumber = this.getInnovationNumber(
-      innovationHistory,
       this.genes[randomConnection].fromNode,
       this.getNode(newNodeNo)
     );
@@ -126,11 +125,10 @@ class Genome {
     );
 
     connectionInnovationNumber = this.getInnovationNumber(
-      innovationHistory,
       this.getNode(newNodeNo),
       this.genes[randomConnection].toNode
     );
-    //add a new connection from the new node with a weight the same as the disabled connection
+    //dodaje se nova konekcija iz novog node-a sa tezinom istom kao iskljucena konekcija
     this.genes.push(
       new connectionGene(
         this.getNode(newNodeNo),
@@ -143,11 +141,10 @@ class Genome {
       this.genes[randomConnection].fromNode.layer + 1;
 
     connectionInnovationNumber = this.getInnovationNumber(
-      innovationHistory,
       this.nodes[this.biasNode],
       this.getNode(newNodeNo)
     );
-    //connect the bias to the new node with a weight of 0
+    //povezuje se bias na novi node sa tezinom 0
     this.genes.push(
       new connectionGene(
         this.nodes[this.biasNode],
@@ -157,13 +154,13 @@ class Genome {
       )
     );
 
-    //if the layer of the new node is equal to the layer of the output node of the old connection then a new layer needs to be created
-    //more accurately the layer numbers of all layers equal to or greater than this new node need to be incrimented
+    //ako je sloj novog node-a jednaka sloju output node-a stare konekcije, kreira se novi sloj
+    //broj sloja svih slojeva jednak ili veci od novog node-a moraju biti inkrementirani
     if (
       this.getNode(newNodeNo).layer == this.genes[randomConnection].toNode.layer
     ) {
       for (let i = 0; i < this.nodes.length - 1; i++) {
-        //dont include this newest node
+        //ne ukljucujemo novi node
         if (this.nodes[i].layer >= this.getNode(newNodeNo).layer) {
           this.nodes[i].layer++;
         }
@@ -173,7 +170,7 @@ class Genome {
     this.connectNodes();
   }
 
-  addConnection(innovationHistory) {
+  addConnection() {
     if (this.fullyConnected()) {
       console.log("connection failed");
       return;
@@ -181,12 +178,12 @@ class Genome {
 
     let randomNode1 = floor(random(this.nodes.length));
     let randomNode2 = floor(random(this.nodes.length));
-    while (this.randomConnectionNodesAreShit(randomNode1, randomNode2)) {
+    while (this.randomConnectionNodesAreBad(randomNode1, randomNode2)) {
       randomNode1 = floor(random(this.nodes.length));
       randomNode2 = floor(random(this.nodes.length));
     }
 
-    //if the first random node is after the second then switch
+    //ako je prvi random node iza drugog, zamenimo ih
     let temp;
     if (this.nodes[randomNode1].layer > this.nodes[randomNode2].layer) {
       temp = randomNode2;
@@ -195,11 +192,9 @@ class Genome {
     }
 
     let connectionInnovationNumber = this.getInnovationNumber(
-      innovationHistory,
       this.nodes[randomNode1],
       this.nodes[randomNode2]
     );
-
     this.genes.push(
       new connectionGene(
         this.nodes[randomNode1],
@@ -207,156 +202,123 @@ class Genome {
         random(-1, 1),
         connectionInnovationNumber
       )
-    ); //changed this so if error here
+    );
     this.connectNodes();
   }
 
-  randomConnectionNodesAreShit(r1, r2) {
-    if (this.nodes[r1].layer == this.nodes[r2].layer) return true; // if the this.nodes are in the same layer
-    if (this.nodes[r1].isConnectedTo(this.nodes[r2])) return true; //if the this.nodes are already connected
+  randomConnectionNodesAreBad(r1, r2) {
+    if (this.nodes[r1].layer == this.nodes[r2].layer) return true; // ako su u istom sloju
+    if (this.nodes[r1].isConnectedTo(this.nodes[r2])) return true; // ako su vec povezani
 
     return false;
   }
 
-  getInnovationNumber(innovationHistory, from, to) {
-    let isNew = true;
-    let connectionInnovationNumber = nextConnectionNo;
-    for (let i = 0; i < innovationHistory.length; i++) {
-      //for each previous mutation
-      if (innovationHistory[i].matches(this, from, to)) {
-        //if match found
-        isNew = false; //its not a new mutation
-        connectionInnovationNumber = innovationHistory[i].innovationNumber; //set the innovation number as the innovation number of the match
-        break;
-      }
-    }
-
-    if (isNew) {
-      //if the mutation is new then create an arrayList of varegers representing the current state of the genome
-      let innoNumbers = [];
-      for (let i = 0; i < this.genes.length; i++) {
-        //set the innovation numbers
-        innoNumbers.push(this.genes[i].innovationNo);
-      }
-
-      //then add this mutation to the innovationHistory
-      innovationHistory.push(
-        new connectionHistory(
-          from.number,
-          to.number,
-          connectionInnovationNumber,
-          innoNumbers
-        )
-      );
-      nextConnectionNo++;
-    }
-    return connectionInnovationNumber;
+  getInnovationNumber(node1, node2) {
+    //Koristimo funkciju uparivanja: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+    return (
+      (1 / 2) *
+        (node1.number + node2.number) *
+        (node1.number + node2.number + 1) +
+      node2.number
+    );
   }
 
-  //returns whether the network is fully connected or not
+  //da li je mreza potpuno povezana
   fullyConnected() {
     let maxConnections = 0;
-    let nodesInLayers = []; //array which stored the amount of this.nodes in each layer
+    let nodesInLayers = [];
     for (let i = 0; i < this.layers; i++) {
       nodesInLayers[i] = 0;
     }
-    //populate array
     for (let i = 0; i < this.nodes.length; i++) {
       nodesInLayers[this.nodes[i].layer] += 1;
     }
-    //for each layer the maximum amount of connections is the number in this layer * the number of this.nodes infront of it
-    //so lets add the max for each layer together and then we will get the maximum amount of connections in the network
+
+    //za svaki sloj maximalna kolicina konekcija je broj u ovom sloju * broju node-a ispred njega
+    //maximalni broj konekcija u mrezi
     for (let i = 0; i < this.layers - 1; i++) {
       let nodesInFront = 0;
       for (let j = i + 1; j < this.layers; j++) {
-        //for each layer infront of this layer
-        nodesInFront += nodesInLayers[j]; //add up this.nodes
+        nodesInFront += nodesInLayers[j];
       }
 
       maxConnections += nodesInLayers[i] * nodesInFront;
     }
     if (maxConnections <= this.genes.length) {
-      //if the number of connections is equal to the max number of connections possible then it is full
+      //ako je broj konekcija jednak maksimalnom mogucem broju konekcija onda je pun
       return true;
     }
 
     return false;
   }
 
-  mutate(innovationHistory) {
+  mutate() {
     if (this.genes.length == 0) {
-      this.addConnection(innovationHistory);
+      this.addConnection();
     }
-    var rand1 = random(1);
-    if (rand1 < 0.8) { // 80% of the time mutate weights
-      for (var i = 0; i < this.genes.length; i++) {
+    let rand1 = random(1);
+    if (rand1 < 0.8) {
+      //80% da se mutira tezina
+      for (let i = 0; i < this.genes.length; i++) {
         this.genes[i].mutateWeight();
       }
     }
-    //5% of the time add a new connection
-    var rand2 = random(1);
+    //5% da se doda nova konekcija
+    let rand2 = random(1);
     if (rand2 < 0.05) {
-
-      this.addConnection(innovationHistory);
+      this.addConnection();
     }
-    //1% of the time add a node
-    var rand3 = random(1);
+    //1% da se doda novi node
+    let rand3 = random(1);
     if (rand3 < 0.01) {
-
-      this.addNode(innovationHistory);
+      this.addNode();
     }
   }
 
   crossover(parent2) {
-    var child = new Genome(this.inputs, this.outputs, true);
+    let child = new Genome(this.inputs, this.outputs, true);
     child.genes = [];
     child.nodes = [];
     child.layers = this.layers;
     child.nextNode = this.nextNode;
     child.biasNode = this.biasNode;
-    var childGenes = []; // new ArrayList<connectionGene>();//list of genes to be inherrited form the parents
-    var isEnabled = []; // new ArrayList<Boolean>();
-    //all inherited genes
-    for (var i = 0; i < this.genes.length; i++) {
-      var setEnabled = true; //is this node in the chlid going to be enabled
+    let childGenes = []; // :connectionGene; lista gena koja ce se naslediti od roditelja
+    let isEnabled = []; // :boolean
+    //svi nasledjeni geni
+    for (let i = 0; i < this.genes.length; i++) {
+      let setEnabled = true; //da li ce ovaj node kod deteta da bude enabled
 
-      var parent2gene = this.matchingGene(parent2, this.genes[i].innovationNo);
+      let parent2gene = this.matchingGene(parent2, this.genes[i].innovationNo);
       if (parent2gene != -1) {
-        //if the genes match
+        //ako su geni isti
         if (!this.genes[i].enabled || !parent2.genes[parent2gene].enabled) {
-          //if either of the matching genes are disabled
+          //ako je bilo koj od gena disabled
 
           if (random(1) < 0.75) {
-            //75% of the time disabel the childs gene
+            //75% da se disable-uje detetov gen
             setEnabled = false;
           }
         }
-        var rand = random(1);
+        let rand = random(1);
         if (rand < 0.5) {
           childGenes.push(this.genes[i]);
-
-          //get gene from this fucker
         } else {
-          //get gene from parent2
           childGenes.push(parent2.genes[parent2gene]);
         }
       } else {
-        //disjoint or excess gene
         childGenes.push(this.genes[i]);
         setEnabled = this.genes[i].enabled;
       }
       isEnabled.push(setEnabled);
     }
 
-    //since all excess and disjovar genes are inherrited from the more fit parent (this Genome) the childs structure is no different from this parent | with exception of dormant connections being enabled but this wont effect this.nodes
-    //so all the this.nodes can be inherrited from this parent
-    for (var i = 0; i < this.nodes.length; i++) {
+    //posto su svi suvisni geni nasledjeni od sposobnijeg roditelja (this Genome) struktura deteta je ista kao kod tog roditelja
+    for (let i = 0; i < this.nodes.length; i++) {
       child.nodes.push(this.nodes[i].clone());
     }
 
-    //clone all the connections so that they connect the childs new this.nodes
-
-    for (var i = 0; i < childGenes.length; i++) {
+    //kloniramo sve konekcije da bi mogle da se povezu sa detetovim novim node-om
+    for (let i = 0; i < childGenes.length; i++) {
       child.genes.push(
         childGenes[i].clone(
           child.getNode(childGenes[i].fromNode.number),
@@ -371,64 +333,61 @@ class Genome {
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
-  //returns whether or not there is a gene matching the input innovation number  in the input genome
+
+  //da li postoji gen koji je isti input inovation number-u u input genu
   matchingGene(parent2, innovationNumber) {
-    for (var i = 0; i < parent2.genes.length; i++) {
+    for (let i = 0; i < parent2.genes.length; i++) {
       if (parent2.genes[i].innovationNo == innovationNumber) {
         return i;
       }
     }
-    return -1; //no matching gene found
+    return -1; //nije nadjen
   }
   //----------------------------------------------------------------------------------------------------------------------------------------
-  //prints out info about the genome to the console
-  printGenome() {
-    console.log("Prvar genome  layers:" + this.layers);
-    console.log("bias node: " + this.biasNode);
-    console.log("this.nodes");
-    for (var i = 0; i < this.nodes.length; i++) {
-      console.log(this.nodes[i].number + ",");
-    }
-    console.log("Genes");
-    for (var i = 0; i < this.genes.length; i++) {
-      //for each connectionGene
-      console.log(
-        "gene " +
-          this.genes[i].innovationNo +
-          "From node " +
-          this.genes[i].fromNode.number +
-          "To node " +
-          this.genes[i].toNode.number +
-          "is enabled " +
-          this.genes[i].enabled +
-          "from layer " +
-          this.genes[i].fromNode.layer +
-          "to layer " +
-          this.genes[i].toNode.layer +
-          "weight: " +
-          this.genes[i].weight
-      );
-    }
+  // printGenome() {
+  //   console.log("Prvar genome  layers:" + this.layers);
+  //   console.log("bias node: " + this.biasNode);
+  //   console.log("this.nodes");
+  //   for (let i = 0; i < this.nodes.length; i++) {
+  //     console.log(this.nodes[i].number + ",");
+  //   }
+  //   console.log("Genes");
+  //   for (let i = 0; i < this.genes.length; i++) {
+  //     //for each connectionGene
+  //     console.log(
+  //       "gene " +
+  //         this.genes[i].innovationNo +
+  //         "From node " +
+  //         this.genes[i].fromNode.number +
+  //         "To node " +
+  //         this.genes[i].toNode.number +
+  //         "is enabled " +
+  //         this.genes[i].enabled +
+  //         "from layer " +
+  //         this.genes[i].fromNode.layer +
+  //         "to layer " +
+  //         this.genes[i].toNode.layer +
+  //         "weight: " +
+  //         this.genes[i].weight
+  //     );
+  //   }
 
-    console.log();
-  }
+  //   console.log();
+  // }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
-  //returns a copy of this genome
+
   clone() {
-
-    var clone = new Genome(this.inputs, this.outputs, true);
-    for (var i = 0; i < this.nodes.length; i++) {
-      //copy this.nodes
+    let clone = new Genome(this.inputs, this.outputs, true);
+    for (let i = 0; i < this.nodes.length; i++) {
       clone.nodes.push(this.nodes[i].clone());
     }
 
-    //copy all the connections so that they connect the clone new this.nodes
-
-    for (var i = 0; i < this.genes.length; i++) {
-      //copy genes
-      const gen = this.genes[i].clone(clone.getNode(this.genes[i].fromNode.number),
-      clone.getNode(this.genes[i].toNode.number));
+    for (let i = 0; i < this.genes.length; i++) {
+      const gen = this.genes[i].clone(
+        clone.getNode(this.genes[i].fromNode.number),
+        clone.getNode(this.genes[i].toNode.number)
+      );
       clone.genes.push(
         this.genes[i].clone(
           clone.getNode(this.genes[i].fromNode.number),
@@ -442,56 +401,49 @@ class Genome {
     clone.biasNode = this.biasNode;
     clone.connectNodes();
 
-    
-
     return clone;
   }
   //----------------------------------------------------------------------------------------------------------------------------------------
-  //draw the genome on the screen
+
   drawGenome(startX, startY, w, h) {
-    //i know its ugly but it works (and is not that important) so I'm not going to mess with it
-    var allNodes = []; //new ArrayList<ArrayList<Node>>();
-    var nodePoses = []; // new ArrayList<PVector>();
-    var nodeNumbers = []; // new ArrayList<Integer>();
+    let allNodes = []; // :Node[]
+    let nodePoses = []; // :PVector[]
+    let nodeNumbers = []; // :Number[]
 
-    //get the positions on the screen that each node is supposed to be in
+    //pozicija svakog node-a
 
-    //split the this.nodes varo layers
-    for (var i = 0; i < this.layers; i++) {
-      var temp = []; // new ArrayList<Node>();
-      for (var j = 0; j < this.nodes.length; j++) {
-        //for each node
+    for (let i = 0; i < this.layers; i++) {
+      let temp = []; // :Node[]
+      for (let j = 0; j < this.nodes.length; j++) {
         if (this.nodes[j].layer == i) {
-          //check if it is in this layer
-          temp.push(this.nodes[j]); //add it to this layer
+          temp.push(this.nodes[j]);
         }
       }
-      allNodes.push(temp); //add this layer to all this.nodes
+      allNodes.push(temp);
     }
 
-    //for each layer add the position of the node on the screen to the node posses arraylist
-    for (var i = 0; i < this.layers; i++) {
+    //za svaki sloj dodati poziciju node-a u nodePoses
+    for (let i = 0; i < this.layers; i++) {
       fill(255, 0, 0);
-      var x = startX + float((i + 1.0) * w) / float(this.layers + 1.0);
-      for (var j = 0; j < allNodes[i].length; j++) {
-        //for the position in the layer
-        var y = startY + float((j + 1.0) * h) / float(allNodes[i].length + 1.0);
+      let x = startX + float((i + 1.0) * w) / float(this.layers + 1.0);
+      for (let j = 0; j < allNodes[i].length; j++) {
+        let y = startY + float((j + 1.0) * h) / float(allNodes[i].length + 1.0);
         nodePoses.push(createVector(x, y));
         nodeNumbers.push(allNodes[i][j].number);
       }
     }
 
-    //draw connections
+    //crtaj konekcije
     stroke(0);
     strokeWeight(2);
-    for (var i = 0; i < this.genes.length; i++) {
+    for (let i = 0; i < this.genes.length; i++) {
       if (this.genes[i].enabled) {
         stroke(0);
       } else {
         stroke(100);
       }
-      var from;
-      var to;
+      let from;
+      let to;
       from = nodePoses[nodeNumbers.indexOf(this.genes[i].fromNode.number)];
       to = nodePoses[nodeNumbers.indexOf(this.genes[i].toNode.number)];
       if (this.genes[i].weight > 0) {
@@ -503,8 +455,7 @@ class Genome {
       line(from.x, from.y, to.x, to.y);
     }
 
-    //draw this.nodes last so they appear ontop of the connection lines
-    for (var i = 0; i < nodePoses.length; i++) {
+    for (let i = 0; i < nodePoses.length; i++) {
       fill(255);
       stroke(0);
       strokeWeight(1);

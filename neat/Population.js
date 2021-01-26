@@ -1,8 +1,6 @@
 class Population {
   constructor(size) {
     this.players = []; //:Player[]
-    this.bestPlayer;
-    this.bestScore = 0;
     this.globalBestScore = 0;
     this.gen = 1;
     this.genPlayers = []; //:Player[]
@@ -14,7 +12,7 @@ class Population {
     this.gensSinceNewWorld = 0;
 
     for (let i = 0; i < size; i++) {
-      this.players.push(new Brain(width / 3, height / 2, width / 200, 0.4, 7));
+      this.players.push(new Brain());
       this.players[this.players.length - 1].brain.mutate();
       this.players[this.players.length - 1].brain.generateNetwork();
     }
@@ -36,7 +34,7 @@ class Population {
       if (!bestPlayer.dead) break;
     }
     bestPlayer.show();
-    bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2);
+    bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2, this);
     for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
         this.players[i].look(); //uzima inpute za mozak
@@ -60,18 +58,6 @@ class Population {
     return true;
   }
 
-  setBestPlayer() {
-    let tempBest = this.species[0].players[0];
-    tempBest.gen = this.gen;
-
-    if (tempBest.score >= this.bestScore) {
-      this.genPlayers.push(tempBest.clone());
-      console.log("old best: " + this.bestScore);
-      console.log("new best: " + tempBest.score);
-      this.bestScore = tempBest.score;
-      this.bestPlayer = tempBest.clone();
-    }
-  }
 
   //zove se kada su svi igraci mrtvi (this.players) i nova generacija se pravi
   naturalSelection() {
@@ -84,7 +70,6 @@ class Population {
       this.massExtinctionEvent = false;
     }
     this.cullSpecies(); //Ubija donju polovinu svake vrste
-    this.setBestPlayer(); //Cuva najboljeg igraca
     this.killStaleSpecies(); //Ubija vrste koje nisu napredovale 15 generacija
     this.killBadSpecies(); //Ubija sve ispod prosecne vrste
 

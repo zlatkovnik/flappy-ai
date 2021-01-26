@@ -370,7 +370,7 @@ class Genome {
     return clone;
   }
 
-  drawGenome(startX, startY, w, h) {
+  drawGenome(startX, startY, w, h, population /* :Population */) {
     let allNodes = []; // :Node[]
     let nodePoses = []; // :p5.Vector[]
     let nodeNumbers = []; // :Number[]
@@ -416,20 +416,24 @@ class Genome {
       } else {
         stroke(0, 0, 255);
       }
-      strokeWeight(map(abs(this.genes[i].weight), 0, 1, 0, 3));
+      strokeWeight(map(abs(this.genes[i].weight), 0, 1, 0, 5));
       line(from.x, from.y, to.x, to.y);
     }
 
     for (let i = 0; i < nodePoses.length; i++) {
       fill(255);
       stroke(0);
-      strokeWeight(1);
-      ellipse(nodePoses[i].x, nodePoses[i].y, 20, 20);
-      textSize(15);
+      noStroke();
+      ellipse(nodePoses[i].x, nodePoses[i].y, 25, 25);
+      textSize(20);
       textFont('Arial');
       fill(0);
       textAlign(CENTER, CENTER);
-      text(nodeNumbers[i], nodePoses[i].x, nodePoses[i].y);
+      text(nodeNumbers[i], nodePoses[i].x, nodePoses[i].y + 1);
     }
+    textSize(25);
+    textAlign(RIGHT);
+    text(`Generacija: ${population.gen}`, startX + w - 10, startY + 20);
+    text(`Najbolji score: ${population.globalBestScore}`, startX + w - 10, startY + 50);
   }
 }

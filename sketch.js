@@ -3,6 +3,8 @@ let population;
 
 let spriteSheet;
 let font;
+let flapSound;
+let pointSound;
 
 let nextConnectionNo = 3000;
 
@@ -21,6 +23,9 @@ function setup() {
   noSmooth();
   spriteSheet = loadImage("./assets/sheet.png");
   font = loadFont("./assets/font.otf");
+
+  flapSound = loadSound("./assets/sfx_wing.wav");
+  pointSound = loadSound("./assets/sfx_point.wav");
 
   player = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
 

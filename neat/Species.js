@@ -125,7 +125,7 @@ class Species {
   }
 
   //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  //simple stuff
+  //Setuje prosecan fitnes
   setAverage() {
     var sum = 0;
     for (var i = 0; i < this.players.length; i++) {
@@ -135,19 +135,17 @@ class Species {
   }
   //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  //gets baby from the this.players in this species
+  //Pravi bebu na osnovu dva dobra roditelja
   giveMeBaby() {
-    var baby;
+    let baby;
     if (random(1) < 0.25) {
-      //25% of the time there is no crossover and the child is simply a clone of a random(ish) player
-
+      //25% sansa da je da se ne pravi dete, vec da bude relativno nasumican igrac
       baby = this.selectPlayer().clone();
     } else {
-      //75% of the time do crossover
-      //get 2 random(ish) parents
-      var parent1 = this.selectPlayer();
+      //75% sansa da se radi reprodukcija dva roditelja
+      const parent1 = this.selectPlayer();
 
-      var parent2 = this.selectPlayer();
+      const parent2 = this.selectPlayer();
 
       //the crossover function expects the highest fitness parent to be the object and the lowest as the argument
       if (parent1.fitness < parent2.fitness) {
@@ -161,41 +159,29 @@ class Species {
     return baby;
   }
 
-  //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  //selects a player based on it fitness
+  //bira igraca u odnosu na fitnes
   selectPlayer() {
-    var fitnessSum = 0;
-    for (var i = 0; i < this.players.length; i++) {
+    let fitnessSum = 0;
+    for (let i = 0; i < this.players.length; i++) {
       fitnessSum += this.players[i].fitness;
     }
-    var rand = random(fitnessSum);
-    var runningSum = 0;
+    const rand = random(fitnessSum);
+    let runningSum = 0;
 
-    for (var i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
       runningSum += this.players[i].fitness;
       if (runningSum > rand) {
         return this.players[i];
       }
     }
-    //unreachable code to make the parser happy
-    return this.players[0];
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //kills off bottom half of the species
+
+  //Ubija donju polovinu vrste
   cull() {
-    if (this.players.length > 2) {
-      for (var i = this.players.length / 2; i < this.players.length; i++) {
-        // this.players.remove(i);
-        this.players.splice(i, 1);
-        i--;
-      }
+    const players = [];
+    for(let i = 0; i < this.players.length / 2; i++){
+      players.push(this.players[i]);
     }
-  }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //in order to protect unique this.players, the fitnesses of each player is divided by the number of this.players in the species that that player belongs to
-  fitnessSharing() {
-    for (var i = 0; i < this.players.length; i++) {
-      this.players[i].fitness /= this.players.length;
-    }
+    this.players = players;
   }
 }

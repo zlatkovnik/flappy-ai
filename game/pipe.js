@@ -11,7 +11,6 @@ class Pipe {
 
     update(velocity){
         this.x -= velocity;
-        //console.log(this.x)
         if(this.x + this.w < 0){
             this.generateRandomPosition();
             this.x = width + this.w / 2;
@@ -35,7 +34,6 @@ class Pipe {
             if(player.x - player.r > this.x + this.w){
                 player.score++;
                 this.scored = true;
-
                 //Speed up game
                 if(player.scrollVelocity < 10)
                    player.scrollVelocity += 0.1;

@@ -4,7 +4,7 @@ let population;
 let spriteSheet;
 let font;
 
-let nextConnectionNo = 1000;
+let nextConnectionNo = 100;
 
 const playerTexCoords = [
   { x: 3, y: 491, w: 18, h: 12 },
@@ -24,9 +24,8 @@ function preload(){
 function setup() {
   createCanvas(860, 640);
   noSmooth();
-  flapSound.amp(0.3);
   player = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
-  population = new Population(1000);
+  population = new Population(100);
 }
 
 function draw() {

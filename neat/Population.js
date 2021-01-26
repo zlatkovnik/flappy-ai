@@ -204,26 +204,19 @@ class Population {
       }
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //if a this.species sucks so much that it wont even be allocated 1 child for the nextthis.generation then kill it now
+  
+  //Ubija ispod prosecne vrste
   killBadSpecies() {
     let averageSum = this.getAvgFitnessSum();
-
     for (let i = 1; i < this.species.length; i++) {
-      if (
-        (this.species[i].averageFitness / averageSum) * this.players.length <
-        1
-      ) {
-        //if wont be given a single child
-        // this.species.remove(i); //sad
+      if ((this.species[i].averageFitness / averageSum) * this.players.length < 1) {
         this.species.splice(i, 1);
-
         i--;
       }
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //returns the sum of each this.species average fitness
+
+  //Vraca sumu svih prosecnih fitnesa u svim vrstama
   getAvgFitnessSum() {
     let averageSum = 0;
     for (let s of this.species) {
@@ -232,87 +225,20 @@ class Population {
     return averageSum;
   }
 
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //kill the bottom half of each this.species
+  //Ubija donju polovinu svake vrste
   cullSpecies() {
     for (let s of this.species) {
-      s.cull(); //kill bottom half
-      s.fitnessSharing(); //also while we're at it lets do fitness sharing
-      s.setAverage(); //reset averages because they will have changed
+      s.cull(); //Ubija donju polovinu vrste
+      s.setAverage(); //Setuje prosecan fitnes
     }
   }
 
   massExtinction() {
-    for (let i = 5; i < this.species.length; i++) {
-      // this.species.remove(i); //sad
-      this.species.splice(i, 1);
-
-      i--;
+    //Ostavlja samo prva pet najbolja
+    const species = [];
+    for(let i = 0; i < 5; i++){
+      species.push(this.species[i]);
     }
-  }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //              BATCH LEARNING
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //update all the players which are alive
-  updateAliveInBatches() {
-    let aliveCount = 0;
-    for (let i = 0; i < this.players.length; i++) {
-      if (this.playerInBatch(this.players[i])) {
-        if (!this.players[i].dead) {
-          aliveCount++;
-          this.players[i].look(); //get inputs for brain
-          this.players[i].think(); //use outputs from neural network
-          this.players[i].update(); //move the player according to the outputs from the neural network
-          if (!showNothing && (!showBest || i == 0)) {
-            this.players[i].show();
-          }
-          if (this.players[i].score > this.globalBestScore) {
-            this.globalBestScore = this.players[i].score;
-          }
-        }
-      }
-    }
-
-    if (aliveCount == 0) {
-      this.batchNo++;
-    }
-  }
-
-  playerInBatch(player) {
-    for (
-      let i = this.batchNo * this.worldsPerBatch;
-      i < min((this.batchNo + 1) * this.worldsPerBatch, worlds.length);
-      i++
-    ) {
-      if (player.world == worlds[i]) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  stepWorldsInBatch() {
-    for (
-      let i = this.batchNo * this.worldsPerBatch;
-      i < min((this.batchNo + 1) * this.worldsPerBatch, worlds.length);
-      i++
-    ) {
-      worlds[i].Step(1 / 30, 10, 10);
-    }
-  }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //returns true if all the players in a batch are dead      sad
-  batchDead() {
-    for (
-      let i = this.batchNo * this.playersPerBatch;
-      i < min((this.batchNo + 1) * this.playersPerBatch, this.players.length);
-      i++
-    ) {
-      if (!this.players[i].dead) {
-        return false;
-      }
-    }
-    return true;
+    this.species = species;
   }
 }

@@ -4,7 +4,7 @@ class Brain extends Player {
 
     this.fitness = 0; /* :number */
     this.vision = []; //input niz koji se prosledjuje mrezi
-    //this.vision[0] je trenutna brzina
+    //this.vision[0] je trenutna brzina pada
     //this.vision[1] je distanca do najblizeg stuba
     //this.vision[2] je visina ptice u odnosu na donji stub
     //this.vision[3] je visina ptice u odnosu na gornji stub

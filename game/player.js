@@ -1,12 +1,12 @@
 class Player {
-    constructor(x, y, sv, g, fs){
-        this.x = x;
-        this.y = y;
+    constructor(){
+        this.x = width / 3;
+        this.y = height / 2;
         this.r = height / 20;
         this.yVel = 0;
-        this.scrollVelocity = sv;
-        this.gravity = g;
-        this.flapStrength = fs;
+        this.scrollVelocity = width / 200;
+        this.gravity = 0.4;
+        this.flapStrength = 10;
         this.dead = false;
 
         this.score = 0;
@@ -19,35 +19,36 @@ class Player {
     }
 
     update(){
-        //animation frame
-        if(frameCount % 10 === 0){
-            this.animationFrame = (this.animationFrame + 1) % 3;
-        }
-        //physics
-        this.yVel += this.gravity;
-        if(this.yVel > 10) this.yVel = 10;
-        this.y += this.yVel;
+            //animation frame
+            if(frameCount % Math.floor(map(this.scrollVelocity, width / 200, 8, 10, 4)) == 0){
+                this.animationFrame = (this.animationFrame + 1) % 3;
+            }
+            //physics
+            this.yVel += this.gravity;
+            if(this.yVel > 10) this.yVel = 10;
+            this.y += this.yVel;
 
-        //if touching celling
-        if(this.y - this.r < 0){
-            this.y = this.r;
-            this.yVel = 0;
-        }
-        //check if hitting ground
-        if(!this.dead)
-            this.dead = this.ground.checkCollision(this);
-        if(!this.dead)
-            this.dead= this.pipe1.checkCollision(this);
-        if(!this.dead)
-            this.dead= this.pipe2.checkCollision(this);
+            //if touching celling
+            if(this.y - this.r < 0){
+                this.y = this.r;
+                this.yVel = 0;
+            }
+            //check if hitting ground
+            if(!this.dead)
+                this.dead = this.ground.checkCollision(this);
+            if(!this.dead)
+                this.dead= this.pipe1.checkCollision(this);
+            if(!this.dead)
+                this.dead= this.pipe2.checkCollision(this);
 
-        this.pipe1.update(player.scrollVelocity);
-        this.pipe2.update(player.scrollVelocity);
-        this.ground.update();
+            this.pipe1.update(this.scrollVelocity);
+            this.pipe2.update(this.scrollVelocity);
+            this.ground.update();
 
-        //check if score
-        this.pipe1.checkIfScored(this);
-        this.pipe2.checkIfScored(this);
+            //check if score
+            this.pipe1.checkIfScored(this);
+            this.pipe2.checkIfScored(this);
+        
     }
 
     show(){

@@ -5,16 +5,18 @@ class Brain extends Player {
     this.fitness = 0; /* :number */
     this.vision = []; //input niz koji se prosledjuje mrezi
     //this.vision[0] je trenutna brzina pada
-    //this.vision[1] je distanca do najblizeg stuba
-    //this.vision[2] je visina ptice u odnosu na donji stub
-    //this.vision[3] je visina ptice u odnosu na gornji stub
+    //this.vision[1] je distanca do najblizeg para cevki
+    //this.vision[2] je visina ptice u odnosu na donji stub blizeg para cevki
+    //this.vision[3] je visina ptice u odnosu na gornji stub blizeg para cevki
+    //this.vision[4] je visina ptice u odnosu na donji stub, para cevki koje su dalje
+    //this.vision[5] je visina ptice u odnosu na gornji stub, para cevki koje su dalje
     this.decision = []; //output mreze
     this.unadjustedFitness;
     this.lifespan = 0; //koliko dugo je ziv (fitnes)
     this.bestScore = 0;
     this.gen = 0;
 
-    this.genomeInputs = 4;
+    this.genomeInputs = 6;
     this.genomeOutputs = 1;
     this.brain = new Genome(this.genomeInputs, this.genomeOutputs);
   }
@@ -32,14 +34,30 @@ class Brain extends Player {
       this.ground.y - closestPipe.gap / 2,
       0,
       1
-    ); //height above bottomY
+    ); 
     this.vision[3] = map(
       max(0, this.y - closestPipe.y - closestPipe.gap / 2),
       0,
       this.ground.y - closestPipe.gap / 2,
       0,
       1
-    ); //distance below topThing
+    );
+    const otherPipe = (closestPipe.x == this.pipe1) ? this.pipe2 : this.pipe1;
+
+    this.vision[4] = map(
+      max(0, otherPipe.y + otherPipe.gap / 2 - this.y),
+      0,
+      this.ground.y - otherPipe.gap / 2,
+      0,
+      1
+    ); 
+    this.vision[5] = map(
+      max(0, this.y - otherPipe.y - otherPipe.gap / 2),
+      0,
+      this.ground.y - otherPipe.gap / 2,
+      0,
+      1
+    );
   }
 
   think() {
@@ -51,7 +69,7 @@ class Brain extends Player {
   }
 
   clone() {
-    var clone = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
+    var clone = new Brain();
     clone.brain = this.brain.clone();
     clone.fitness = this.fitness;
     clone.brain.generateNetwork();
@@ -65,20 +83,10 @@ class Brain extends Player {
   }
 
   crossover(parent2 /* :Brain */) {
-    var child = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
+    var child = new Brain();
     child.brain = this.brain.crossover(parent2.brain);
     child.brain.generateNetwork();
     return child;
-  }
-
-  cloneForReplay() {
-    var clone = new Brain(width / 3, height / 2, width / 200, 0.4, 10);
-    clone.brain = this.brain.clone();
-    clone.fitness = this.fitness;
-    clone.brain.generateNetwork();
-    clone.gen = this.gen;
-    clone.bestScore = this.score;
-    return clone;
   }
 
   getClosestPipe() {

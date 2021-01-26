@@ -1,8 +1,6 @@
 class Population {
   constructor(size) {
     this.players = []; //:Player[]
-    this.bestPlayer;
-    this.bestScore = 0;
     this.globalBestScore = 0;
     this.gen = 1;
     this.genPlayers = []; //:Player[]
@@ -14,7 +12,7 @@ class Population {
     this.gensSinceNewWorld = 0;
 
     for (let i = 0; i < size; i++) {
-      this.players.push(new Brain(width / 3, height / 2, width / 200, 0.4, 7));
+      this.players.push(new Brain());
       this.players[this.players.length - 1].brain.mutate();
       this.players[this.players.length - 1].brain.generateNetwork();
     }
@@ -28,6 +26,7 @@ class Population {
     }
     return this.players[0];
   }
+
   updateAlive() {
     let bestPlayer;
     for (let i = 0; i < this.players.length; i++) {
@@ -35,7 +34,7 @@ class Population {
       if (!bestPlayer.dead) break;
     }
     bestPlayer.show();
-    bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2);
+    bestPlayer.brain.drawGenome(width / 2, 0, width / 2, height / 2, this);
     for (let i = 0; i < this.players.length; i++) {
       if (!this.players[i].dead) {
         this.players[i].look(); //uzima inpute za mozak
@@ -48,7 +47,7 @@ class Population {
       }
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
+
   //true ako su svi igraci mrtvi
   done() {
     for (let i = 0; i < this.players.length; i++) {
@@ -58,123 +57,97 @@ class Population {
     }
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
 
-  setBestPlayer() {
-    let tempBest = this.species[0].players[0];
-    tempBest.gen = this.gen;
 
-    if (tempBest.score >= this.bestScore) {
-      this.genPlayers.push(tempBest.cloneForReplay());
-      console.log("old best: " + this.bestScore);
-      console.log("new best: " + tempBest.score);
-      this.bestScore = tempBest.score;
-      this.bestPlayer = tempBest.cloneForReplay();
-    }
-  }
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------
   //zove se kada su svi igraci mrtvi (this.players) i nova generacija se pravi
   naturalSelection() {
     let previousBest = this.players[0];
-    this.speciate(); //seperate the this.players varo this.species
-    this.calculateFitness(); //calculate the fitness of each player
-    this.sortSpecies(); //sort the this.species to be ranked in fitness order, best first
+    this.speciate(); //razvrstava igrace po vrstama
+    this.calculateFitness(); //Racuna se fitnes svih igraca
+    this.sortSpecies(); //Sortira vrste od najbolje ka najgoroj
     if (this.massExtinctionEvent) {
       this.massExtinction();
       this.massExtinctionEvent = false;
     }
-    this.cullSpecies(); //kill off the bottom half of each this.species
-    this.setBestPlayer(); //save the best player of thisthis.gen
-    this.killStaleSpecies(); //remove this.species which haven't improved in the last 15(ish)this.generations
-    this.killBadSpecies(); //kill this.species which are so bad that they cant reproduce
+    this.cullSpecies(); //Ubija donju polovinu svake vrste
+    this.killStaleSpecies(); //Ubija vrste koje nisu napredovale 15 generacija
+    this.killBadSpecies(); //Ubija sve ispod prosecne vrste
 
     console.log(
       "generation  " +
         this.gen +
         "  species:   " +
-        this.species.length +
-        "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+        this.species.length
     );
 
-    let averageSum = this.getAvgFitnessSum();
-    let children = [];
+    const averageSum = this.getAvgFitnessSum();
+    const children = [];
     for (let j = 0; j < this.species.length; j++) {
-      //for each this.species
-
-      children.push(this.species[j].champ.clone()); //add champion without any mutation
-      let NoOfChildren =
+      children.push(this.species[j].champ.clone()); //Dodaje sampiona bez mutacija
+      const NoOfChildren =
         floor(
           (this.species[j].averageFitness / averageSum) * this.players.length
-        ) - 1; //the number of children this this.species is allowed, note -1 is because the champ is already added
+        ) - 1; //Dozvoljen broj dece
 
       for (let i = 0; i < NoOfChildren; i++) {
-        //get the calculated amount of children from this this.species
+        //Vrati bebe u odnosu na broj dece
         children.push(this.species[j].giveMeBaby());
       }
     }
-    // setup();
-    // return;
     if (children.length < this.players.length) {
       children.push(previousBest.clone());
     }
     while (children.length < this.players.length) {
-      //if not enough babies (due to flooring the number of children to get a whole var)
-      children.push(this.species[0].giveMeBaby()); //get babies from the best this.species
+      //Ako nema dovoljno beba zbog zaokruzivanja
+      children.push(this.species[0].giveMeBaby()); //Uzima bebe od najbolje vrste
     }
 
     this.players = [];
-    arrayCopy(children, this.players); //set the children as the current this.playersulation
+    arrayCopy(children, this.players);
     this.gen += 1;
     for (let i = 0; i < this.players.length; i++) {
-      //generate networks for each of the children
       this.players[i].brain.generateNetwork();
     }
   }
 
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //seperate this.players into this.species based on how similar they are to the leaders of each this.species in the previousthis.gen
+  //Podeli igrace u vrste u odnosu na to koliko se razlikuju od najboljeg u vrsti
   speciate() {
+    //Reset vrsti
     for (let s of this.species) {
-      //empty this.species
       s.players = [];
     }
     for (let i = 0; i < this.players.length; i++) {
-      //for each player
       let speciesFound = false;
       for (let s of this.species) {
-        //for each this.species
         if (s.sameSpecies(this.players[i].brain)) {
-          //if the player is similar enough to be considered in the same this.species
-          s.addToSpecies(this.players[i]); //add it to the this.species
+          //Ako je igrac dovoljno slican da pripadne toj vrsti
+          s.addToSpecies(this.players[i]);
           speciesFound = true;
           break;
         }
       }
       if (!speciesFound) {
-        //if no this.species was similar enough then add a new this.species with this as its champion
+        //Ako igrac nije slican ni jednoj vrsti, dodaj ga kao sampiona nove vrste
         this.species.push(new Species(this.players[i]));
       }
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //calculates the fitness of all of the players
+  //Racuna fitnes svih igraca
   calculateFitness() {
     for (let i = 1; i < this.players.length; i++) {
       this.players[i].calculateFitness();
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //sorts the players within a this.species and the this.species by their fitnesses
+
+  //Sortira vrste po fitnesu
   sortSpecies() {
-    //sort the players within a this.species
+    //Sortira igrace po vrsti
     for (let s of this.species) {
       s.sortSpecies();
     }
 
-    //sort the this.species by the fitness of its best player
-    //using selection sort like a loser
-    let temp = []; //new ArrayList<Species>();
+    //Sortira vrste po fitnesu najboljeg igraca
+    let temp = [];
     for (let i = 0; i < this.species.length; i++) {
       let max = 0;
       let maxIndex = 0;
@@ -186,23 +159,21 @@ class Population {
       }
       temp.push(this.species[maxIndex]);
       this.species.splice(maxIndex, 1);
-      // this.species.remove(maxIndex);
       i--;
     }
     this.species = [];
     arrayCopy(temp, this.species);
   }
-  //------------------------------------------------------------------------------------------------------------------------------------------
-  //kills all this.species which haven't improved in 15this.generations
+
+  //Ubija sve vrste koje nisu napredovale 15 generacija
   killStaleSpecies() {
+    const species = [];
     for (let i = 2; i < this.species.length; i++) {
-      if (this.species[i].staleness >= 15) {
-        // .remove(i);
-        // splice(this.species, i)
-        this.species.splice(i, 1);
-        i--;
+      if (this.species[i].staleness < 15) {
+        species.push(this.species[i]);
       }
     }
+    this.species = species;
   }
   
   //Ubija ispod prosecne vrste

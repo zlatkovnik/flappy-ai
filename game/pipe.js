@@ -35,7 +35,7 @@ class Pipe {
                 player.score++;
                 this.scored = true;
                 //Speed up game
-                if(player.scrollVelocity < 10)
+                if(player.scrollVelocity < 8)
                    player.scrollVelocity += 0.1;
             }
         }

@@ -24,7 +24,7 @@ class Brain extends Player {
   look() {
     this.lifespan++;
     this.vision = [];
-    this.vision[0] = map(this.yVel, -10, 10, -1, 1);
+    this.vision[0] = map(this.yVel, -10, 10, 0, 1);
     const closestPipe = this.getClosestPipe();
     const distanceToClosestPipe = closestPipe.x + closestPipe.w / 2 - this.x;
     this.vision[1] = map(distanceToClosestPipe, 0, width - this.x, 1, 0);

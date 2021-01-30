@@ -24,7 +24,7 @@ function preload(){
 function setup() {
   createCanvas(860, 640);
   noSmooth();
-  population = new Population(1000);
+  population = new Population(10000);
 }
 
 function draw() {
@@ -36,11 +36,6 @@ function draw() {
     }
   }
   else {
-    pipe1 = new Pipe(width);
-    pipe2 = new Pipe(width + width / 2 + width / 8);
     population.naturalSelection();
   }
-}
-
-function mousePressed() {
 }

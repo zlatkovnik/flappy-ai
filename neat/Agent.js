@@ -1,4 +1,4 @@
-class Brain extends Player {
+class Agent extends Player {
   constructor(x, y, sv, g, fs) {
     super(x, y, sv, g, fs);
 
@@ -69,7 +69,7 @@ class Brain extends Player {
   }
 
   clone() {
-    var clone = new Brain();
+    var clone = new Agent();
     clone.brain = this.brain.clone();
     clone.fitness = this.fitness;
     clone.brain.generateNetwork();
@@ -82,8 +82,8 @@ class Brain extends Player {
     this.fitness = 1 + this.score * this.score + this.lifespan / 20;
   }
 
-  crossover(parent2 /* :Brain */) {
-    var child = new Brain();
+  crossover(parent2 /* :Agent */) {
+    var child = new Agent();
     child.brain = this.brain.crossover(parent2.brain);
     child.brain.generateNetwork();
     return child;

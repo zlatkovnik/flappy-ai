@@ -6,7 +6,7 @@ class Genome {
   ) {
     this.genes = []; /* :Node[] */
     this.nodes = []; /* :Node[] */
-    this.inputs = inputs; /* :number */
+    this.inputs = inputs; /* :number */ 
     this.outputs = outputs; /* :number */
     this.layers = 2; /* :number */
     this.nextNode = 0; /* :number */

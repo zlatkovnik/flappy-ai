@@ -1,8 +1,8 @@
 class Species {
   constructor(p) {
-    this.players = []; /* :Brain[] */
+    this.players = []; /* :Agent[] */
     this.bestFitness = 0;
-    this.champ; /* Brain */
+    this.champ; /* Agent */
     this.averageFitness = 0;
     this.staleness = 0; //Koliko je proslo generacija bez napretka
     this.rep;

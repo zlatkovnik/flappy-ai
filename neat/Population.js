@@ -12,19 +12,10 @@ class Population {
     this.gensSinceNewWorld = 0;
 
     for (let i = 0; i < size; i++) {
-      this.players.push(new Brain());
+      this.players.push(new Agent());
       this.players[this.players.length - 1].brain.mutate();
       this.players[this.players.length - 1].brain.generateNetwork();
     }
-  }
-
-  getCurrentBest() {
-    for (let i = 0; i < this.players.length; i++) {
-      if (!this.players[i].dead) {
-        return this.players[i];
-      }
-    }
-    return this.players[0];
   }
 
   updateAlive() {
